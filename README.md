@@ -70,7 +70,7 @@ user-name-fancy-app/rc1.3.0
 
 The resulting URLs will also be slugified, so they don't contain dots or slashes
 anymore. The URL will also be flat, so it can be used as a subdomain or path
-without having to deal with varying depts.
+without having to deal with varying depths.
 
 So the build will be available under http://localhost:8080/user-name-fancy-app-rc1-3-0/,
 the URL for the logfile will be http://localhost:8080/dashboard/log/user.name-fancy-app/rc1.3.0/.
@@ -95,10 +95,10 @@ The name must refer to a config file in `config/`. The file can have different e
 ```
 
 The first one found is used (in the order above). This gives `.local`-files precedence,
-and since they are gitignored, they will override default files.
+and since they are gitignored, they can be used to override included configurations.
 
 So in the case above, one of the following files must exist:
-`development.local.js`, `development.local.json` etc.
+`development.local.js`, `development.local.conf.js`, `development.js`, `development.conf.js`.
 
 ## Configuration
 
