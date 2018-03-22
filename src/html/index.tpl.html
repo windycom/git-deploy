@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>Dashboard</title>
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<style>
+		body {
+			padding-top: 0.5em;
+		}
+		.list-group {
+			margin-top: 1em;
+		}
+		span.label {
+			display: block;
+			margin-bottom: 0.3em;
+			font-weight: bold;
+		}
+		.header {
+			display: flex;
+			width: 100%;
+			justify-content: space-between;
+			align-items: center;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="header">
+			<h1>Dashboard</h1>
+		</div>
+		{{#message}}
+			<div class="alert alert-{{message.type}}" role="alert">{{{message.body}}}</div>
+		{{/message}}
+		<ul class="list-group">
+			{{#builds}}
+			<li class="list-group-item">
+				<div class="row">
+					<div class="col-md">
+						<h5>
+						{{#frontend}}
+							<a href="/{{url}}">{{repoName}}/{{name}}</a>
+						{{/frontend}}
+						{{^frontend}}
+							{{repoName}}/{{name}}
+						{{/frontend}}
+						</h5>
+						<div>
+							<p class="small">{{ts}}</p>
+						{{#progress}}
+							<p class="small">{{progress}}</p>
+						{{/progress}}
+						</div>
+					</div>
+					<div class="col-md">
+						<span class="label small">Todo:</span>
+						<p class="todo">{{{message}}}</p>
+					</div>
+					<div class="col-md" style="display:flex">
+						<div style="flex-grow:1">
+							<span class="label small">Build log:</span>
+							<p><a href="{{logUrl}}">{{logUrl}}</a></p>
+						</div>
+						<div style="flex-grow:0">
+						{{#progress}}
+							<a href="?cancel={{path}}" class="btn btn-sm btn-warning confirm">Cancel build</a>
+						{{/progress}}
+						{{^progress}}
+							<a href="?delete={{path}}" class="btn btn-sm btn-danger confirm">Delete build</a>
+						{{/progress}}
+						</div>
+					</div>
+				</div>
+			</li>
+			{{/builds}}
+		</ul>
+		{{^builds}}
+			<div class="alert alert-warn" role="alert">No builds.</div>
+		{{/builds}}
+	</div>
+<script>
+// remove all get-params
+window.history.replaceState({}, '', location.pathname);
+const confirmAction = (event) => {
+	if (!window.confirm('Are you sure? There is no undo!')) {
+		event.preventDefault();
+	}
+};
+
+for (const button of document.querySelectorAll('.confirm')) {
+	button.addEventListener('click', confirmAction, false);
+}
+
+</script>
+</body>
+</html>

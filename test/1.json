@@ -1,0 +1,24 @@
+{
+	"header": {
+		"Content-Type": "application/json",
+		"X-Gitlab-Event": "Tag Push Hook",
+		"X-Gitlab-Token": "00000000-0000-0000-0000-000000000000"
+	},
+	"body": {
+		"object_kind": "tag_push",
+		"ref": "refs/tags/rc1.3.0",
+		"checkout_sha": "0000000000000000000000000000000000000000",
+		"message": "Test more of this.\nTest more of that.\n",
+		"project": {
+			"path_with_namespace": "user/test"
+		},
+		"repository": {
+			"git_ssh_url": "ssh://git@gitlab.example.com:8022/user/test.git"
+		},
+		"commits": [
+			{
+				"timestamp": "2018-03-07T13:43:02+01:00"
+			}
+		]
+	}
+}

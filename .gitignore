@@ -57,3 +57,8 @@ typings/
 # dotenv environment variables file
 .env
 
+# Sublime
+*.sublime-workspace
+
+# Local configuration files
+*.local.*

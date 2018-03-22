@@ -1,0 +1,26 @@
+{
+  "name": "git-deploy",
+  "version": "0.1.0",
+  "description": "Deployment server for gitlab-hooks.",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "bootstrap": "^4.0.0",
+    "chalk": "^2.3.2",
+    "express": "^4.16.2",
+    "fs-extra": "^4.0.3",
+    "helmet": "^3.12.0",
+    "jsonwebtoken": "^8.2.0",
+    "lodash": "^4.17.5",
+    "mustache": "^2.3.0",
+    "request": "^2.85.0",
+    "require-rewrite": "^1.0.2"
+  },
+  "requireRewrite": {
+    "before": [
+      "src"
+    ]
+  },
+  "author": "Arne Seib",
+  "license": "MIT"
+}
