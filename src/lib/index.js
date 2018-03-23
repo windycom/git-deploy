@@ -177,9 +177,7 @@ const runDeployment = async (deployment) => {
 		// Create process, initially suspended.
 		const worker = fork(Path.join(__dirname, 'worker.js'), [ datafileName ], {
 			cwd: privatePath,
-			env: {
-				NODE_ENV: process.env.NODE_ENV,
-			},
+			env: process.env,
 			stdio: ['inherit', 'pipe', 'pipe', 'ipc'],
 		});
 		await Fs.writeFile(pidFile, worker.pid, 'utf8');
