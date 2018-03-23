@@ -11,9 +11,6 @@ module.exports = {
 	// Bind to specific interface (0.0.0.0 for all).
 	bind: '127.0.0.1',
 
-	// Mode: Can be `path` or `subdomain`. Default is `path`.
-	mode: 'path',
-
 	// Path where to store data (checkout, build-logs etc)
 	dataPath: '/opt/git-deploy',
 

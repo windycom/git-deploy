@@ -41,10 +41,9 @@ const git = (...args) => makeCpAwaitable(spawn('git', args, {
 // Run a node script (via fork()) with args.
 const node = (cmd, ...args) => makeCpAwaitable(fork(cmd, args, {
 	cwd: process.cwd(),
-	env: {
-		NODE_ENV: process.env.NODE_ENV,
+	env: Object.assign({
 		GIT_DEPLOY_DATA_FILE: datafileName,
-	},
+	}, process.env),
 	stdio: 'inherit',
 }));
 
@@ -52,9 +51,9 @@ const node = (cmd, ...args) => makeCpAwaitable(fork(cmd, args, {
 // Run raw command (via spawn()) with args.
 const run = (cmd, ...args) => makeCpAwaitable(spawn(cmd, args, {
 	cwd: process.cwd(),
-	env: {
+	env: Object.assign({
 		GIT_DEPLOY_DATA_FILE: datafileName,
-	},
+	}, process.env),
 	shell: true,
 	stdio: 'inherit',
 }));
