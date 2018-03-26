@@ -36,7 +36,7 @@ const parseRequest = async (body, token) => {
 	const name = body.project.path_with_namespace;
 	const target = getTarget(name, body.ref);
 	if (!target) {
-		throw new Error('Unknown target');
+		return null;
 	}
 
 	// check secret
