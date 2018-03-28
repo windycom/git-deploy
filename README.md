@@ -120,3 +120,6 @@ full path to the current `build.json` via the environment variable `GIT_DEPLOY_D
 If the command refers to a `.js`-file, it is run via `fork()`. Otherwise `spawn()`
 spawns a shell and runs the command there.
 
+## License
+
+This software is licenced under the [MIT](https://opensource.org/licenses/MIT) license.
