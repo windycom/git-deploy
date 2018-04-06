@@ -44,6 +44,8 @@ const getIndexHtml = async () => {
 // For sorting builds.
 const byMTime = (a, b) => b.mtime - a.mtime;
 
+const byCommitTime = (a, b) => b.committime - a.committime;
+
 //------------------------------------------------------------------------------
 // Cancels a running build.
 const cancelBuild = async (fullName) => {
@@ -88,6 +90,7 @@ const getBuild = async (repoName, targetId, allBuilds) => {
 			url: data.url,
 			logUrl: `log/${data.repo.path}/${data.path}`,
 			mtime: stats.mtime,
+			committime: (new Date(data.commit.timestamp)).toLocaleString(),
 			message: (data.message || '').replace('\r', '').replace('\n', '<br>'),
 			progress: null,
 			frontend: !!data.wwwSrcPath,
@@ -154,7 +157,7 @@ const getDashboard = async (req, res) => {
 		const names = await Fs.readdir(config.publicPath);
 
 		(await mapAsync(names, (name) => getProject(name, allBuilds))).filter(p => p);
-		data.builds = allBuilds.sort(byMTime);
+		data.builds = allBuilds.sort(byCommitTime);
 	} catch (error) {
 		console.error(error);
 		data.message = {
@@ -170,8 +173,7 @@ const getDashboard = async (req, res) => {
 // Returns a logfile.
 const getLog = async (req, res, next) => {
 	try {
-		const repoName = req.params.repoName;
-		const targetId = req.params.targetId;
+		const { repoName, targetId } = req.params;
 		const logFile = Path.join(config.publicPath, repoName, targetId, BUILD_LOG);
 		if (!Fs.existsSync(logFile)) {
 			next(new createError.NotFound());

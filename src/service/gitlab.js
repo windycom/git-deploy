@@ -43,6 +43,7 @@ const parseRequest = async (body, token) => {
 	if (target.secret && (token !== target.secret)) {
 		throw new Error('Invalid secret token.');
 	}
+	delete target.secret;
 
 	// Check sha. Can be empty, when branch / tag gets deleted.
 	// For now we ignore that, but it can be used to delete a build.
@@ -55,6 +56,19 @@ const parseRequest = async (body, token) => {
 	target.checkoutSha = body.checkout_sha;
 	target.action = 'update';
 	target.message = body.message || '';
+	target.raw = body;
+	const commit = body.commits && body.commits[0];
+	target.commit = commit
+		? {
+			id: commit.id,
+			timestamp: commit.timestamp,
+			message: commit.message,
+		}
+		: {
+			id: null,
+			timestamp: 0,
+			message: '',
+		};
 
 	return target;
 };
