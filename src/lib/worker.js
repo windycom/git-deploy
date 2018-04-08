@@ -108,12 +108,9 @@ const runCommands = async (commands) => {
 //------------------------------------------------------------------------------
 // Completely remove a build.
 const deleteBuild = async () => {
-	const { privatePath, publicPath, wwwDstPath, postremove } = deployData;
+	const { privatePath, wwwDstPath, postremove } = deployData;
 	try {
-		await Fs.emptyDir(privatePath);
-		await Fs.rmdir(privatePath);
-		await Fs.emptyDir(publicPath);
-		await Fs.rmdir(publicPath);
+		await Fs.remove(privatePath);
 	} catch (error) { /**/ }
 
 	// remove link if any
@@ -175,9 +172,6 @@ const main = async () => {
 		if (!deployData.privatePath) {
 			throw new Error(`Invalid or missing privatePath: ${deployData.privatePath}`);
 		}
-		if (!deployData.publicPath) {
-			throw new Error(`Invalid or missing publicPath: ${deployData.publicPath}`);
-		}
 		if (!deployData.checkoutPath) {
 			throw new Error(`Invalid or missing checkoutPath: ${deployData.checkoutPath}`);
 		}
@@ -193,7 +187,6 @@ const main = async () => {
 
 		// make sure folders exist
 		await Fs.ensureDir(deployData.privatePath);
-		await Fs.ensureDir(deployData.publicPath);
 
 		// CHANGE WORK DIR: private path
 		process.chdir(deployData.privatePath);

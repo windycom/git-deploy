@@ -10,7 +10,7 @@ const chalk = require('chalk');
 const express = require('express');
 const helmet = require('helmet');
 const { mapAsync } = require('lib');
-const { setConfig, config } = require('lib/config');
+const { executeConfig, config } = require('lib/config');
 
 const app = express();
 
@@ -37,7 +37,7 @@ module.exports = async (options) => {
 	process.stdout.write(chalk.yellow(`*** Booting server\n`));
 
 	// validate and set config
-	await setConfig(options);
+	await executeConfig(options);
 
 	// some basic express setup
 	process.stdout.write(chalk.yellow(`Initializing server... `));

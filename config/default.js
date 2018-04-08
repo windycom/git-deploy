@@ -16,11 +16,7 @@ module.exports = {
 
 	// Private data: Repositories, pid-files etc.
 	// Resolved against dataPath.
-	privatePath: 'private',
-
-	// Public files: Logfiles and build-data.
-	// Resolved against dataPath.
-	publicPath: 'public',
+	privatePath: '.data',
 
 	// WWW-Root. A build's output will be linked here.
 	// Resolved against dataPath.
@@ -49,12 +45,13 @@ module.exports = {
 	// Repository configuration. Each entry's key must be the full name gitlab
 	// sends, means: <username>/<repositoryname>.
 	repos: {
-		'myaccount/fancy-app': {
-			// A short name. If none will be given, full key (myaccount/fancy-app here)
-			// is used.
-			// The result will be slugified, so it contains no path separators anymore.
-			// We need a flag folder structure.
-			name: 'fancy-app',
+		// Key is the human readable name.
+		'fancy-app': {
+			// Full path as it will appear in the hook data (`project.path_with_namespace`
+			// for gitlab). The result will be path-flattened, so it contains no path
+			// separators anymore, we want a flat folder structure.
+			// Means: `myaccount/fancy-app` becomes `myaccount-fancy-app`.
+			path: 'myaccount/fancy-app',
 
 			// If given, use that secrect.
 			secret: '00000000-0000-0000-0000-000000000000',
@@ -67,8 +64,7 @@ module.exports = {
 					match: /^refs\/tags\/rc(.+)$/,
 
 					// Path can contain interpolations from the match (%1, %2 etc) and
-					// creates a folder structure in config.privatePath, config.publicPath
-					// and config.wwwPath.
+					// creates a folder structure in config.publicPath and config.wwwPath.
 					// The path will be combined from the name of the repo and this
 					// expression here. It will be slugified to contain no slashes or dots,
 					// so it does not contain any structural information, neither for subdomains

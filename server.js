@@ -28,5 +28,6 @@ const run = async () => {
 //==============================================================================
 run().then(() => { process.send && process.send('ready'); }).catch(error => {
 	console.error(chalk.red(`✗ ${error.message}`));
+	console.error(error);
 	process.exit(1);
 });

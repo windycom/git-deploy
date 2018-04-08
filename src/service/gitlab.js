@@ -9,7 +9,8 @@
 const bodyParser = require('body-parser');
 const createError = require('http-errors');
 const express = require('express');
-const { requestHandler, getTarget } = require('lib');
+const { requestHandler } = require('lib');
+const { get } = require('lib/Repository');
 
 // These are the only events the server is listening to:
 const EVENTS = ['push', 'tag_push'];
@@ -17,60 +18,46 @@ const EVENTS = ['push', 'tag_push'];
 //------------------------------------------------------------------------------
 // Gitlab handler. Parses a gitlab webhook request and returns data for
 // runDeployment().
-const parseRequest = async (body, token) => {
+const parseRequest = async (request, token) => {
 	// check data sanity
-	if (!body.repository) {
+	if (!request.repository) {
 		throw new Error('Invalid data: Repository.');
 	}
 
-	if (!body.repository.git_ssh_url) {
+	if (!request.repository.git_ssh_url) {
 		throw new Error('Invalid data: Url.');
 	}
 
-	if (!EVENTS.includes(body.object_kind)) {
+	if (!EVENTS.includes(request.object_kind)) {
 		// can't handle that event
-		throw new Error(`Can't handle event type ${body.object_kind}`);
+		throw new Error(`Can't handle event type ${request.object_kind}`);
 	}
 
 	// Target
-	const name = body.project.path_with_namespace;
-	const target = getTarget(name, body.ref);
+	const target = get(request.project.path_with_namespace, request.ref);
 	if (!target) {
 		return null;
 	}
 
 	// check secret
-	if (target.secret && (token !== target.secret)) {
-		throw new Error('Invalid secret token.');
-	}
-	delete target.secret;
+	target.assertAllowed(token);
 
 	// Check sha. Can be empty, when branch / tag gets deleted.
 	// For now we ignore that, but it can be used to delete a build.
-	if (!body.checkout_sha) {
+	if (!request.checkout_sha) {
 		return null;
 	}
 
-	// set data from current request
-	target.gitUrl = body.repository.git_ssh_url;
-	target.checkoutSha = body.checkout_sha;
-	target.action = 'update';
-	target.message = body.message || '';
-	target.raw = body;
-	const commit = body.commits && body.commits[0];
-	target.commit = commit
-		? {
-			id: commit.id,
-			timestamp: commit.timestamp,
-			message: commit.message,
-		}
-		: {
-			id: null,
-			timestamp: 0,
-			message: '',
-		};
+	const commit = request.commits && request.commits[0];
 
-	return target;
+	// set data from current request
+	return target.createActual('update', {
+		gitUrl: request.repository.git_ssh_url,
+		checkoutSha: request.checkout_sha,
+		message: request.message || '',
+		request,
+		commit,
+	});
 };
 
 //------------------------------------------------------------------------------

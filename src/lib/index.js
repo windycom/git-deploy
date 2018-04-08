@@ -12,6 +12,7 @@ const createError = require('http-errors');
 const { fork, spawn } = require('child_process');
 const { config, console } = require('lib/config');
 const { BUILD_LOG, BUILD_DATA, BUILD_PID } = require('lib/constants');
+const { flattenPath, flattenUrl } = require('lib/utils');
 
 // For interpolation of match result
 const REPLACE_EXPRESSION = /([^%]?)%([0-9]+)/g;
@@ -56,14 +57,6 @@ const evalTarget = (target, ref) => {
 };
 
 //------------------------------------------------------------------------------
-// Flattens a path (replaces separators).
-const flattenPath = (s, c = '-') => s.replace(/[/\\]/g, c);
-
-//------------------------------------------------------------------------------
-// Flattens a URL. Replaces separators both for subdomains and for paths.
-const flattenUrl = (s, c = '-') => s.replace(/[/\\.]/g, c);
-
-//------------------------------------------------------------------------------
 // Finds a matching target for the key/ref-combination, and if found, sets
 // data for deployment.
 // Caller must still add gitUrl, checkoutSha, action and message
@@ -78,13 +71,13 @@ const getTarget = (key, ref) => {
 		if (match) {
 			const repo = {
 				// Name: pure name from `name`-property or key
-				name: repoConfig.name || key,
+				name: key,
 			};
-			// ID: Flat path
-			repo.path = flattenPath(repo.name);
+			// Flat path
+			repo.path = flattenPath(repo.path);
 
 			// ID: Flat url
-			repo.id = flattenUrl(repo.name);
+			repo.id = flattenUrl(repo.path);
 
 			const result = {
 				repo,
@@ -108,7 +101,6 @@ const getTarget = (key, ref) => {
 
 			// resolved paths
 			result.privatePath = Path.resolve(config.privatePath, targetFullPath);
-			result.publicPath = Path.resolve(config.publicPath, targetFullPath);
 			result.checkoutPath = Path.join(result.privatePath, 'src');
 
 			// Does this have a frontend?
@@ -155,9 +147,8 @@ const deploymentStatus = async (privatePath) => {
 //------------------------------------------------------------------------------
 // Runs a deployment task. Spawns a new process.
 const runDeployment = async (deployment) => {
-	const { privatePath, publicPath } = deployment;
+	const { privatePath } = deployment;
 	await Fs.ensureDir(privatePath);
-	await Fs.ensureDir(publicPath);
 
 	// check if already running
 	const status = await deploymentStatus(privatePath);
@@ -168,8 +159,8 @@ const runDeployment = async (deployment) => {
 	const pidFile = Path.join(privatePath, BUILD_PID);
 	await Fs.writeFile(pidFile, '0', 'utf8');
 
-	const datafileName = Path.join(publicPath, BUILD_DATA);
-	const logfileName = Path.join(publicPath, BUILD_LOG);
+	const datafileName = Path.join(privatePath, BUILD_DATA);
+	const logfileName = Path.join(privatePath, BUILD_LOG);
 
 	let logfileStream = null;
 
@@ -258,7 +249,6 @@ const ensureSafeForRmRf = (path) => {
 // Completely remove a build.
 const removeBuild = async (fullName, targetUrl) => {
 	const privatePath = Path.join(config.privatePath, fullName);
-	const publicPath = Path.join(config.publicPath, fullName);
 	const wwwDstPath = targetUrl
 		? Path.join(config.wwwPath, targetUrl)
 		: null;
@@ -270,12 +260,8 @@ const removeBuild = async (fullName, targetUrl) => {
 	}
 
 	ensureSafeForRmRf(privatePath);
-	ensureSafeForRmRf(publicPath);
 	try {
-		await Fs.emptyDir(privatePath);
-		await Fs.rmdir(privatePath);
-		await Fs.emptyDir(publicPath);
-		await Fs.rmdir(publicPath);
+		await Fs.remove(privatePath);
 	} catch (error) { /**/ }
 };
 

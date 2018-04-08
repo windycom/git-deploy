@@ -54,13 +54,14 @@ const validateConfig = async (config) => {
 	}
 
 	config.dataPath = Path.resolve(module.exports.config.root, config.dataPath);
-	config.privatePath = Path.resolve(config.dataPath, config.privatePath || 'private');
-	config.publicPath = Path.resolve(config.dataPath, config.publicPath || 'public');
-	config.wwwPath = Path.resolve(config.dataPath, config.wwwPath || 'www');
-
+	config.privatePath = Path.resolve(config.dataPath, config.privatePath || '.data');
 	await Fs.ensureDir(config.privatePath);
-	await Fs.ensureDir(config.publicPath);
+
+	config.wwwPath = Path.resolve(config.dataPath, config.wwwPath || 'www');
 	await Fs.ensureDir(config.wwwPath);
+
+	config.socketPath = Path.join(config.privatePath, 'sockets');
+	await Fs.ensureDir(config.socketPath);
 
 	const logLevel = LConsole[config.LOG_LEVEL.toUpperCase()];
 	if (isNaN(logLevel)) {
@@ -77,8 +78,10 @@ const validateConfig = async (config) => {
 
 //------------------------------------------------------------------------------
 // Accepts an external object to copy to config.
-module.exports.setConfig = async (config) => {
+// Creates the repository map.
+module.exports.executeConfig = async (config) => {
 	Object.assign(module.exports.config, await validateConfig(config));
+	require('lib/Repository')(module.exports.config.repos);
 };
 
 //------------------------------------------------------------------------------
